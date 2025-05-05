@@ -227,25 +227,64 @@
 {{end}}
 
 <script>
-function confirmDelete(id) {
-  Swal.fire({
-    title: 'Emin misiniz?',
-    text: "Bu kullanıcıyı silmek istediğinize emin misiniz? Bu işlem geri alınamaz!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#dc3545',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Evet, sil!',
-    cancelButtonText: 'İptal',
-    customClass: {
-        confirmButton: 'btn btn-danger me-2',
-        cancelButton: 'btn btn-secondary'
-    },
-    buttonsStyling: false
-  }).then((result) => {
-    if (result.isConfirmed) {
-      document.getElementById(`deleteForm-${id}`).submit();
-    }
-  });
-}
-</script>
+  function confirmDelete(id) {
+    const formElement = document.getElementById(`deleteForm-${id}`);
+    const csrfTokenInput = formElement ? formElement.querySelector('input[name="csrf_token"]') : null;
+    const csrfToken = csrfTokenInput ? csrfTokenInput.value : null;
+  
+    Swal.fire({
+      title: 'Emin misiniz?',
+      text: "Bu kullanıcıyı silmek istediğinize emin misiniz? Bu işlem geri alınamaz!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Evet, sil!',
+      cancelButtonText: 'İptal',
+      customClass: {
+          confirmButton: 'btn btn-danger me-2',
+          cancelButton: 'btn btn-secondary'
+      },
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const url = `/dashboard/users/delete/${id}`;
+        const headers = {
+          'Accept': 'application/json',
+        };
+  
+        if (csrfToken) {
+          headers['X-CSRF-Token'] = csrfToken;
+        }
+  
+        fetch(url, {
+          method: 'DELETE',
+          headers: headers
+        })
+        .then(response => {
+          if (!response.ok) {
+            return response.text().then(text => { throw new Error(text || `HTTP error! status: ${response.status}`) });
+          }
+           return response.json();
+        })
+        .then(data => {
+          Swal.fire(
+            'Silindi!',
+            'Kullanıcı başarıyla silindi.',
+            'success'
+          ).then(() => {
+            window.location.reload();
+          });
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          Swal.fire(
+            'Hata!',
+            `Kullanıcı silinirken bir hata oluştu: ${error.message}`,
+            'error'
+          );
+        });
+      }
+    });
+  }
+  </script>

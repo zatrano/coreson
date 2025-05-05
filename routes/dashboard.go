@@ -25,6 +25,5 @@ func registerDashboardRoutes(app *fiber.App) {
 	dashboardGroup.Post("/users/create", userHandler.CreateUser)
 	dashboardGroup.Get("/users/update/:id", userHandler.ShowUpdateUser)
 	dashboardGroup.Post("/users/update/:id", userHandler.UpdateUser)
-	dashboardGroup.Post("/users/delete/:id", userHandler.DeleteUser)
 	dashboardGroup.Delete("/users/delete/:id", userHandler.DeleteUser)
 }
